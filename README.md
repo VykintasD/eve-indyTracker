@@ -1,6 +1,6 @@
 # eve-indyTracker
 
-### Setup
+# Setup
 
 Create `.env` in the root folder
 
@@ -14,7 +14,7 @@ For that, we need self-signed certificates.
 
 Generate certificates, and add them to the `./certs` folder.
 
-# Generating the certificates
+## Generating the certificates
 
 You can use `mkcert` - https://github.com/FiloSottile/mkcert
 
@@ -33,6 +33,6 @@ This will create the following files (NEVER SHARE OR COMMIT THESE FILES):
    `HTTPS_CERT_FILENAME=indytracker.com+5.pem`
    `HTTPS_KEY_FILENAME=indytracker.com+5-key.pem`
 
-### Starting the services
+# Starting the services
 
 We are using `concurrently` here - start both services with `npm run start` from root directory.
