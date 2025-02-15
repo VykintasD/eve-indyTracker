@@ -14,26 +14,28 @@ For that, we need self-signed certificates.
 
 Generate certificates, and add them to the `./certs` folder.
 
-## Generating the certificates
+### Generating the certificates
 
-You can use `mkcert` - https://github.com/FiloSottile/mkcert
+You can use any method you like to generate this.
 
-1. Install mkcert:
+I have used `mkcert` - https://github.com/FiloSottile/mkcert
+
+1. Install `mkcert`:
+
    `choco install mkcert`
+
 2. Install the local certificate authority:
+
    `mkcert -install`
-3. Generate the certificates:
+
+3. Generate the certificates in `certs` folder (NEVER SHARE OR COMMIT THESE FILES):
+
    `cd certs && mkcert indytracker.com "*.indytracker.com" localhost 127.0.0.1 ::1`
-
-This will create the following files (NEVER SHARE OR COMMIT THESE FILES):
-
-`indytracker.com+5.pem` (the certificate)
-
-`indytracker.com+5-key.pem` (the private key)
 
 4. Add the file names of your certificates to your `.env` file:
 
    `HTTPS_CERT_FILENAME=indytracker.com+5.pem`
+
    `HTTPS_KEY_FILENAME=indytracker.com+5-key.pem`
 
 # Starting the services
