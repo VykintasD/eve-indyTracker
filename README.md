@@ -2,7 +2,7 @@
 
 # Setup
 
-Create `.env` in the root folder
+Create `.env` file and a `certs` folder in root
 
 `npm install`
 
@@ -26,10 +26,13 @@ You can use `mkcert` - https://github.com/FiloSottile/mkcert
    `cd certs && mkcert indytracker.com "*.indytracker.com" localhost 127.0.0.1 ::1`
 
 This will create the following files (NEVER SHARE OR COMMIT THESE FILES):
+
 `indytracker.com+5.pem` (the certificate)
+
 `indytracker.com+5-key.pem` (the private key)
 
 4. Add the file names of your certificates to your `.env` file:
+
    `HTTPS_CERT_FILENAME=indytracker.com+5.pem`
    `HTTPS_KEY_FILENAME=indytracker.com+5-key.pem`
 
