@@ -2,7 +2,7 @@
   //import axios from 'axios';
 
   function startAuth() {
-    window.location.href = 'http://localhost:5000/auth';
+    window.location.href = 'https://localhost:5000/auth';
   }
 
   // export default {

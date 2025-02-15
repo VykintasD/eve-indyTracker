@@ -1,34 +1,47 @@
 const Buffer = require('buffer').Buffer;
-
+const fs = require('fs');
+const path = require('path');
 const express = require('express');
-const session = require('express-session');
-
+const https = require('https');
 const axios = require('axios');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
+const jwkToPem = require('jwk-to-pem');
 
-const dotenv = require('dotenv');
+const dotenv = require('dotenv').config({ path: '../.env' });
 const SCOPES = require('./config/scopes');
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+const privateKey = fs.readFileSync(
+  path.join('../certs', process.env.HTTPS_KEY_FILENAME)
+);
+const certificate = fs.readFileSync(
+  path.join('../certs', process.env.HTTPS_CERT_FILENAME)
+);
+
 app.use(cors());
 app.use(express.json());
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+https
+  .createServer({ key: privateKey, cert: certificate }, app)
+  .listen(PORT, () => {
+    console.log(`Server running on https://localhost:${PORT}`);
+  });
 
 const endpoints = {
-  BASE: 'http://localhost:5000',
+  BASE: 'https://localhost:5000',
   AUTH_CALLBACK: '/auth/callback',
-  HOMEPAGE: 'http://localhost:8080',
+  HOMEPAGE: 'https://localhost:8080',
 };
+
+const ACCEPTED_ISSUERS = ('logineveonline.com', 'https://login.eveonline.com');
+const EXPECTED_AUDIENCE = 'EVE Online';
 
 // Route to start OAuth flow (redirect to OAuth provider)
 app.get('/auth', (req, res) => {
+  console.log('hit auth');
   const { authUrl, state } = generateSSOurl(
     SCOPES,
     `${endpoints.BASE}${endpoints.AUTH_CALLBACK}`
@@ -55,6 +68,8 @@ app.get(endpoints.AUTH_CALLBACK, async (req, res) => {
       const accessToken = tokenResponse.data.access_token;
 
       this.accessToken = accessToken;
+      console.log('verifying access token...');
+      await verifyAccessToken(accessToken);
 
       res.redirect(endpoints.HOMEPAGE);
     } catch (error) {
@@ -83,6 +98,45 @@ app.get(endpoints.AUTH_CALLBACK, async (req, res) => {
 //     res.status(500).send('Error fetching data');
 //   }
 // });
+
+async function verifyAccessToken(accessToken) {
+  const jwksMetadata = await fetchJWKSMetadata();
+  const keys = jwksMetadata.keys;
+
+  const header = jwt.decode(accessToken, { complete: true }).header;
+  const key = keys.find(
+    (item) => item.kid === header.kid && item.alg === header.alg
+  );
+
+  console.log(header);
+  console.log(jwksMetadata);
+  console.log(accessToken);
+
+  const pem = jwkToPem(key);
+  const decodedToken = jwt.verify(accessToken, pem, {
+    algorithms: [header.alg],
+    issuer: ACCEPTED_ISSUERS,
+    audience: EXPECTED_AUDIENCE,
+    tenant: 'tranquility',
+    tier: 'livea',
+    region: 'world',
+  });
+
+  console.log(decodedToken);
+}
+
+async function fetchJWKSMetadata() {
+  console.log('Getting well known metadata...');
+  const wellKnownMetadata = await axios.get(
+    'https://login.eveonline.com/.well-known/oauth-authorization-server'
+  );
+
+  if (wellKnownMetadata?.data?.jwks_uri) {
+    console.log('Getting token issuer uri...');
+    const jwksMetadata = await axios.get(wellKnownMetadata?.data?.jwks_uri);
+    return jwksMetadata.data;
+  }
+}
 
 async function requestAccessToken(authorizationCode) {
   const basicAuth = Buffer.from(
