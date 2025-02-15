@@ -1,0 +1,19 @@
+{
+  "name": "eve-indytracker",
+  "version": "1.0.0",
+  "description": "",
+  "workspaces": [
+    "indy-tracker",
+    "local-server"
+  ],
+  "scripts": {
+    "start": "concurrently --raw \"npm run dev --prefix local-server\" \"npm run serve --prefix indy-tracker\" -c \"blue,green\"",
+    "install:all": "npm install"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
