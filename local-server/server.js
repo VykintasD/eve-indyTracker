@@ -79,26 +79,6 @@ app.get(endpoints.AUTH_CALLBACK, async (req, res) => {
   }
 });
 
-//Fetch data from external service using access token
-// app.get('/data', async (req, res) => {
-//   const accessToken = req.session.accessToken;
-
-//   if (!accessToken) {
-//     return res.status(403).send('Not authenticated');
-//   }
-
-//   try {
-//     const response = await axios.get('https://api.example.com/data', {
-//       headers: { Authorization: `Bearer ${accessToken}` },
-//     });
-
-//     res.json(response.data);
-//   } catch (error) {
-//     console.error('Error fetching data:', error);
-//     res.status(500).send('Error fetching data');
-//   }
-// });
-
 async function verifyAccessToken(accessToken) {
   const jwksMetadata = await fetchJWKSMetadata();
   const keys = jwksMetadata.keys;
@@ -118,7 +98,7 @@ async function verifyAccessToken(accessToken) {
     issuer: ACCEPTED_ISSUERS,
     audience: EXPECTED_AUDIENCE,
     tenant: 'tranquility',
-    tier: 'livea',
+    tier: 'live',
     region: 'world',
   });
 
@@ -158,7 +138,6 @@ async function requestAccessToken(authorizationCode) {
   );
 }
 
-// Function to generate the authorization URL
 function generateSSOurl(scopes, redirectUri) {
   const state = Math.random().toString(36).substring(2, 18);
 

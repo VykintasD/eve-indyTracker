@@ -1,30 +1,7 @@
 <script setup>
-  //import axios from 'axios';
-
   function startAuth() {
     window.location.href = 'https://localhost:5000/auth';
   }
-
-  // export default {
-  //   data() {
-  //     return {
-  //       data: null,
-  //     };
-  //   },
-  //   methods: {
-  //     startAuth() {
-  //       window.location.href = 'http://localhost:3000/auth';  // Redirects to backend OAuth flow
-  //     },
-  //     async fetchData() {
-  //       try {
-  //         const response = await axios.get('http://localhost:3000/data');
-  //         this.data = response.data;
-  //       } catch (error) {
-  //         console.error('Error fetching data:', error);
-  //       }
-  //     },
-  //   },
-  // };
 </script>
 <template>
   <div>
