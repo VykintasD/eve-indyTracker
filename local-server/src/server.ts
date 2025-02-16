@@ -12,8 +12,6 @@ dotenv.config({ path: '../.env' });
 
 import AuthenticationService from './services/authenticationService.ts';
 
-//const PORT = process.env.PORT || 5000;
-
 const privateKey = fs.readFileSync(
   path.join('../certs', process.env.HTTPS_KEY_FILENAME!)
 );
@@ -24,7 +22,7 @@ const certificate = fs.readFileSync(
 // const repo = new Repository();
 // repo.connect();
 const endpoints = {
-  BASE: 'https://localhost:5000',
+  BASE: `https://localhost:${process.env.EXPRESS_PORT}`,
   AUTH_CALLBACK: '/auth/callback',
   HOMEPAGE: 'https://localhost:8080',
 };
@@ -39,7 +37,6 @@ export default class Server {
   constructor() {
     this.app = express();
     this.authService = new AuthenticationService();
-    this.PORT = process.env.EXPRESS_PORT;
     this.accessToken = '';
     this.configureMiddleware();
     this.configureRoutes();
@@ -53,8 +50,8 @@ export default class Server {
   start() {
     https
       .createServer({ key: privateKey, cert: certificate }, this.app)
-      .listen(this.PORT, () => {
-        console.log(`Server running on https://localhost:${this.PORT}`);
+      .listen(process.env.EXPRESS_PORT, () => {
+        console.log(`Server running on ${endpoints.BASE}`);
       });
 
     console.log(process.env.ESI_SCOPES);

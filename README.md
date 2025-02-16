@@ -2,6 +2,15 @@
 
 # Setup
 
+## Register your app with ESI
+
+1. Go to https://developers.eveonline.com/applications to register your application
+2. For auth callback, use `https://localhost:5000/auth/callback` (you may change the port, but be sure to update `.env` accordingly)
+3. Once registered, you can obtain your `CLIENT_ID` and `CLIENT_SECRET` from there. These go in your `.env` file.
+4. Grab your selected scopes and update `./local-server/src/config/authService.ts` to export your `authenticationScopes`
+
+## General setup
+
 Create `.env` file and a `certs` folder in root
 
 `npm install`
@@ -14,12 +23,20 @@ To verify your DB is running - https://www.w3schools.com/postgresql/postgresql_g
 
 Update your `.env` in root with your values
 
+### Example .env file using :5000 for server, :8080 for frontend and :5432 for DB
+
 ```
-PG_PASSWORD=YourDBPassword
-PG_PORT=PortDBListeningOn
-PG_DATABASE=DatabaseName
+HTTPS_CERT_FILENAME={appName.com+5.pem}
+HTTPS_KEY_FILENAME={appName.com+5-key.pem}
+CLIENT_ID={your cliend id from ESI}
+CLIENT_SECRET={your super secret client secret from ESI}
+EXPRESS_PORT=5000
+VUE_PORT=8080
+PG_PASSWORD={your postgres password}
+PG_PORT=5432
+PG_DATABASE=postgres
 PG_HOST=localhost
-PG_USER=YourUser
+PG_USER=postgres
 ```
 
 ## Using HTTPS

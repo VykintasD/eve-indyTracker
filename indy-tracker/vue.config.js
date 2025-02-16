@@ -19,6 +19,6 @@ module.exports = defineConfig({
       },
     },
     host: 'localhost',
-    port: 8080,
+    port: process.env.VUE_PORT,
   },
 });
