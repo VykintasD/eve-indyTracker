@@ -6,6 +6,22 @@ Create `.env` file and a `certs` folder in root
 
 `npm install`
 
+You need to set up PostreSQL - download here https://www.postgresql.org/download/windows/
+
+Set an admin password, and note down which port you are using for the db server (5432 by default).
+
+To verify your DB is running - https://www.w3schools.com/postgresql/postgresql_getstarted.php
+
+Update your `.env` in root with your values
+
+```
+PG_PASSWORD=YourDBPassword
+PG_PORT=PortDBListeningOn
+PG_DATABASE=DatabaseName
+PG_HOST=localhost
+PG_USER=YourUser
+```
+
 ## Using HTTPS
 
 EVE SSO uses OAuth 2.0 - since this is a localhost app, we'd like to use HTTPS.

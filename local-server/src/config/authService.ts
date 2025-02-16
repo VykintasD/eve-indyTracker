@@ -1,4 +1,4 @@
-const scopes = [
+export const authenticationScopes: String[] = [
   'publicData',
   'esi-wallet.read_character_wallet.v1',
   'esi-search.search_structures.v1',
@@ -19,5 +19,3 @@ const scopes = [
   'esi-industry.read_corporation_mining.v1',
   'esi-characterstats.read.v1',
 ];
-
-module.exports = scopes;
