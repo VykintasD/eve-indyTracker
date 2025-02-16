@@ -3,6 +3,20 @@ import { endpoints } from '../config/shared.ts';
 import axios from 'axios';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import jwkToPem from 'jwk-to-pem';
+import {
+  Character,
+  AuthToken,
+  AuthenticationState,
+  AuthenticationError,
+} from '../types/types.ts';
+
+interface CustomJwtPayload extends JwtPayload {
+  tier: string;
+  tenant: string;
+  region: string;
+  name: string;
+  owner: string;
+}
 
 export default class AuthenticationService {
   authenticationScopes: string[];
@@ -22,37 +36,77 @@ export default class AuthenticationService {
     return this.challengeState === state;
   }
 
-  async handleEsiCallback(req: any, res: any) {
-    const authorizationCode = req.query.code;
+  /**
+   * Once we have signed in with the ESI auth provider, we are redirected to this handler
+   * We do not trust the returned token blindly, and need to verify:
+   * - Whether auth provider returned the same state challenge we sent
+   * - Whether algo, issuer and audience match what we expect
+   * - Whether the key matches the public key available on JWKS metadata endpoint
+   *
+   * Once verified, we get the character ID via another request, this time using the provided token
+   * TODO: better error handling
+   * @param req
+   * @param res
+   * @returns Promise<AuthenticationState>
+   */
+  async handleEsiCallback(req: any, res: any): Promise<AuthenticationState> {
+    const { code, state } = req.query;
 
-    if (!authorizationCode) {
-      return res.status(400).send('No authorization code found');
+    if (!code) {
+      throw new AuthenticationError('No authorization code found');
     }
 
     // confirm returned state code matches to avoid CSRF
-    if (this.verifyIncomingState(req.query.state)) {
+    if (this.verifyIncomingState(state)) {
       try {
         // Exchange authorization code for access token
-        const tokenResponse = await this.requestAccessToken(authorizationCode);
+        const { access_token, refresh_token, token_type } =
+          await this.requestAccessToken(code);
 
-        const accessToken = tokenResponse.data.access_token;
-        const refreshToken = tokenResponse.data.refresh_token;
+        console.log('Verifying access token... 🔒');
+        const decodedToken = await this.verifyAccessToken(access_token);
 
-        console.log('verifying access token...');
-        await this.verifyAccessToken(accessToken);
-        console.log('success!');
+        console.log('Token verified 😎');
 
-        res.redirect(endpoints.HOMEPAGE);
-      } catch (error) {
-        console.error('Error during token exchange:', error);
-        res.status(500).send('Error during OAuth token exchange');
+        const character: Character = await this.getCharacter(decodedToken.name);
+
+        const authToken: AuthToken = {
+          accessToken: access_token,
+          refreshToken: refresh_token,
+          expiresAt: decodedToken.exp,
+          tokenType: token_type,
+          characterId: character.id,
+        };
+
+        const authenticationState: AuthenticationState = {
+          character: character,
+          token: authToken,
+        };
+
+        return authenticationState;
+      } catch (error: any) {
+        throw error instanceof AuthenticationError
+          ? error
+          : new AuthenticationError('Auth error: ', error);
       }
     } else {
-      res.status(500).send('SSO service returned mismatched state challenge');
+      throw new AuthenticationError(
+        'SSO service returned mismatched state challenge'
+      );
     }
   }
 
-  async verifyAccessToken(accessToken: string) {
+  async getCharacter(characterName: string): Promise<Character> {
+    const character = await axios.post(
+      'https://esi.evetech.net/latest/universe/ids',
+      [characterName]
+    );
+
+    return character?.data?.characters[0];
+  }
+
+  // TODO: error handling
+  async verifyAccessToken(accessToken: string): Promise<CustomJwtPayload> {
     const ACCEPTED_ISSUERS = [
       'logineveonline.com',
       'https://login.eveonline.com',
@@ -68,21 +122,21 @@ export default class AuthenticationService {
     );
 
     const pem = jwkToPem(key);
-    const decodedToken: JwtPayload | string = jwt.verify(accessToken, pem, {
+    return jwt.verify(accessToken, pem, {
       algorithms: [key.alg],
       issuer: ACCEPTED_ISSUERS,
       audience: EXPECTED_AUDIENCE,
-    });
+    }) as CustomJwtPayload;
   }
 
   async fetchJWKSMetadata() {
-    console.log('Getting well known metadata...');
+    console.log('Getting well known metadata... 🔃');
     const wellKnownMetadata = await axios.get(
       'https://login.eveonline.com/.well-known/oauth-authorization-server'
     );
 
     if (wellKnownMetadata?.data?.jwks_uri) {
-      console.log('Getting token issuer uri...');
+      console.log('Getting token issuer uri... 🔍');
       const jwksMetadata = await axios.get(wellKnownMetadata?.data?.jwks_uri);
       return jwksMetadata.data;
     }
@@ -93,7 +147,7 @@ export default class AuthenticationService {
       `${process.env.CLIENT_ID}:${process.env.CLIENT_SECRET}`
     ).toString('base64');
 
-    return await axios.post(
+    const accessToken = await axios.post(
       'https://login.eveonline.com/v2/oauth/token',
       new URLSearchParams({
         grant_type: 'authorization_code',
@@ -106,6 +160,8 @@ export default class AuthenticationService {
         },
       }
     );
+
+    return accessToken.data;
   }
 
   generateSSOurl(redirectUri: string) {

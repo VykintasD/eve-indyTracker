@@ -5,6 +5,7 @@ import express from 'express';
 import https from 'https';
 import axios from 'axios';
 import cors from 'cors';
+import { AuthenticationState } from './types/types.ts';
 
 // HTTPS config
 const httpsPrivateKey = fs.readFileSync(
@@ -16,20 +17,20 @@ const httpsCertificate = fs.readFileSync(
 
 // Services
 import AuthenticationService from './services/authenticationService.ts';
+import Repository from '../db/repository.ts';
 
 export default class Server {
   app: any;
   authService: AuthenticationService;
-  PORT: string | undefined;
-  state: string | undefined;
-  accessToken: string;
+  repository: Repository;
 
   constructor() {
     this.app = express();
     this.authService = new AuthenticationService();
-    this.accessToken = '';
+    this.repository = new Repository();
     this.configureMiddleware();
     this.configureRoutes();
+    this.connectToDb();
   }
 
   configureMiddleware() {
@@ -37,11 +38,15 @@ export default class Server {
     this.app.use(express.json());
   }
 
+  connectToDb() {
+    this.repository.connect();
+  }
+
   start() {
     https
       .createServer({ key: httpsPrivateKey, cert: httpsCertificate }, this.app)
       .listen(process.env.EXPRESS_PORT, () => {
-        console.log(`Server running on ${endpoints.BASE}`);
+        console.log(`Server running on ${endpoints.BASE} 🤖`);
       });
   }
 
@@ -64,7 +69,16 @@ export default class Server {
      * @route '/auth/callback'
      *  */
     this.app.get(endpoints.AUTH_CALLBACK, async (req: any, res: any) => {
-      await this.authService.handleEsiCallback(req, res);
+      try {
+        // Get authentication state
+        const authenticationState: AuthenticationState =
+          await this.authService.handleEsiCallback(req, res);
+
+        // Store authentication state for character
+
+        // Return to homepage
+        res.redirect(endpoints.HOMEPAGE);
+      } catch (err) {}
     });
   }
 }

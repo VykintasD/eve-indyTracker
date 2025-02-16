@@ -24,6 +24,7 @@
     "@types/jsonwebtoken": "^9.0.8",
     "@types/jwk-to-pem": "^2.0.3",
     "@types/node": "^22.13.4",
+    "@types/pg": "^8.11.11",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3"
