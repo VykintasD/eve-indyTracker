@@ -3,4 +3,5 @@ export const endpoints = {
   AUTH: '/auth',
   AUTH_CALLBACK: '/auth/callback',
   HOMEPAGE: `https://localhost:${process.env.VUE_PORT}`,
+  API: '/api',
 };

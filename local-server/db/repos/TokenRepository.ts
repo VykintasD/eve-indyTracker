@@ -19,10 +19,9 @@ export default class TokenRepository {
     }
 
     const result = await this.client.query(this.buildQuery(token));
-    console.log(result.rows);
 
     if (!result.rows.length) {
-      console.log(`could not save token`);
+      console.error(`could not save token`);
     }
 
     return result;

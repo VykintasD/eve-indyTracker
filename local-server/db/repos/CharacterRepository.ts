@@ -26,7 +26,9 @@ export default class CharacterRepository {
   }
 
   async fetchAll() {
-    return await this.client.query(`SELECT * FROM characters`);
+    const result = await this.client.query(`SELECT * FROM characters`);
+
+    return result;
   }
 
   private buildInsertQuery(character: Character) {

@@ -3,9 +3,8 @@ import fs from 'fs';
 import path from 'path';
 import express from 'express';
 import https from 'https';
-import axios from 'axios';
 import cors from 'cors';
-import { AuthenticationState } from './types/types.ts';
+import routes from './routes/index.ts';
 
 // HTTPS config
 const httpsPrivateKey = fs.readFileSync(
@@ -51,44 +50,6 @@ export default class Server {
   }
 
   configureRoutes() {
-    /**
-     * Auth route to initiate SSO
-     * @route '/auth'
-     *  */
-    this.app.get(endpoints.AUTH, (req: any, res: any) => {
-      const { authUrl, state } = this.authService.generateSSOurl(
-        `${endpoints.BASE}${endpoints.AUTH_CALLBACK}`
-      );
-
-      this.authService.registerOutboundState(state);
-      res.redirect(authUrl);
-    });
-
-    /**
-     * ESI Callback route after user is authenticated (OAuth callback)
-     * @route '/auth/callback'
-     *  */
-    this.app.get(endpoints.AUTH_CALLBACK, async (req: any, res: any) => {
-      try {
-        // Get authentication state
-        const authenticationState: AuthenticationState =
-          await this.authService.handleEsiCallback(req, res);
-
-        // Store authentication state for character
-        console.log(authenticationState);
-
-        console.log('writing character to DB');
-        this.repository.storeAuth(authenticationState);
-
-        // query all stored characters
-        const chars = await this.repository.fetchAllCharacters();
-        console.log(chars.rows);
-
-        // Return to homepage
-        res.redirect(endpoints.HOMEPAGE);
-      } catch (err) {
-        console.log(err);
-      }
-    });
+    this.app.use(routes);
   }
 }

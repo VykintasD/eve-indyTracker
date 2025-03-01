@@ -11,22 +11,25 @@ const tableConfig = fs.readFileSync(
   path.join('./db/tables', 'createTables.sql'),
   'utf8'
 );
+const client = new Client({
+  user: process.env.PG_USER,
+  host: process.env.PG_HOST,
+  database: process.env.PG_DATABASE,
+  password: process.env.PG_PASSWORD,
+  port: Number(process.env.PG_PORT),
+});
+const characterRepo = new CharacterRepository(client);
+const tokenrepo = new TokenRepository(client);
+
 export default class Repository {
   client: Client;
   characterRepo: CharacterRepository;
   tokenrepo: TokenRepository;
 
   constructor() {
-    this.client = new Client({
-      user: process.env.PG_USER,
-      host: process.env.PG_HOST,
-      database: process.env.PG_DATABASE,
-      password: process.env.PG_PASSWORD,
-      port: Number(process.env.PG_PORT),
-    });
-
-    this.characterRepo = new CharacterRepository(this.client);
-    this.tokenrepo = new TokenRepository(this.client);
+    this.client = client;
+    this.tokenrepo = tokenrepo;
+    this.characterRepo = characterRepo;
   }
 
   async connect() {
@@ -42,13 +45,15 @@ export default class Repository {
 
   async storeAuth(authState: AuthenticationState) {
     const character = new Character(authState.character).validate();
-    this.characterRepo.save(character);
+    await this.characterRepo.save(character);
 
     const token = new Token(authState.token).validate();
-    this.tokenrepo.save(token);
+    await this.tokenrepo.save(token);
   }
 
   async fetchAllCharacters() {
-    return this.characterRepo.fetchAll();
+    const result = await this.characterRepo.fetchAll();
+    console.log('repo: ', result);
+    return result;
   }
 }
