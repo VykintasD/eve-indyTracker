@@ -4,16 +4,16 @@ interface Account {
 }
 
 interface Character {
-  id: string;
+  id: number;
   name: string;
 }
 
 interface AuthToken {
   accessToken: string;
-  refreshToken?: string;
-  expiresAt: number | undefined;
+  refreshToken: string;
+  expiresAt: number;
   tokenType: string;
-  characterId?: Character['id'];
+  characterId: Character['id'];
 }
 
 interface AuthenticationState {
@@ -22,12 +22,3 @@ interface AuthenticationState {
 }
 
 export type { Account, Character, AuthToken, AuthenticationState };
-
-export class AuthenticationError extends Error {
-  constructor(message: string, cause?: Error) {
-    super(message);
-    this.cause = cause;
-    this.name = 'AuthenticationError';
-    Object.setPrototypeOf(this, AuthenticationError.prototype);
-  }
-}

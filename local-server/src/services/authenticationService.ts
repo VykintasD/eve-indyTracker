@@ -3,12 +3,8 @@ import { endpoints } from '../config/shared.ts';
 import axios from 'axios';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import jwkToPem from 'jwk-to-pem';
-import {
-  Character,
-  AuthToken,
-  AuthenticationState,
-  AuthenticationError,
-} from '../types/types.ts';
+import { Character, AuthToken, AuthenticationState } from '../types/types.ts';
+import { AuthenticationError } from '../types/errors.ts';
 
 interface CustomJwtPayload extends JwtPayload {
   tier: string;
@@ -73,7 +69,7 @@ export default class AuthenticationService {
         const authToken: AuthToken = {
           accessToken: access_token,
           refreshToken: refresh_token,
-          expiresAt: decodedToken.exp,
+          expiresAt: decodedToken.exp ?? 0,
           tokenType: token_type,
           characterId: character.id,
         };

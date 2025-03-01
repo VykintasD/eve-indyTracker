@@ -75,10 +75,20 @@ export default class Server {
           await this.authService.handleEsiCallback(req, res);
 
         // Store authentication state for character
+        console.log(authenticationState);
+
+        console.log('writing character to DB');
+        this.repository.storeAuth(authenticationState);
+
+        // query all stored characters
+        const chars = await this.repository.fetchAllCharacters();
+        console.log(chars.rows);
 
         // Return to homepage
         res.redirect(endpoints.HOMEPAGE);
-      } catch (err) {}
+      } catch (err) {
+        console.log(err);
+      }
     });
   }
 }
