@@ -50,15 +50,12 @@ export default class Repository {
 
   async storeCharacter(char: Character) {
     const character = new Character(char).validate();
-    character.validate();
     await this.characterRepo.save(character);
   }
 
   async storeToken(authToken: AuthToken) {
-    console.log('storing token: ', authToken);
     const token = new Token(authToken).validate();
     await this.tokenrepo.save(token);
-    console.log('token stored');
   }
 
   async getAllCharacters() {
@@ -68,7 +65,6 @@ export default class Repository {
 
   async getAccessToken(characterId: number): Promise<Token> {
     const result = await this.tokenrepo.getAccessToken(characterId);
-    console.log('repo found token: ', result[0]);
     return result[0];
   }
 }

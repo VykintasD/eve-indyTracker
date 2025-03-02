@@ -186,7 +186,6 @@ export default class AuthenticationService {
       character_id: characterId,
     };
 
-    console.log('Refreshed new token: ', newToken);
     return newToken;
   }
 
@@ -203,7 +202,6 @@ export default class AuthenticationService {
     });
 
     const authUrl = `https://login.eveonline.com/v2/oauth/authorize?${queryParams.toString()}`;
-    console.log('authUrl generateSSOurl ', authUrl);
     return { authUrl, state };
   }
 }
