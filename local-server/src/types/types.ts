@@ -1,5 +1,3 @@
-import Token from '../../db/tables/Token';
-
 interface Account {
   id: string;
   characters: Character['id'][];
@@ -25,7 +23,5 @@ interface AuthenticationState {
   character: Character;
   token: AuthToken;
 }
-
-interface AuthenticationRefreshState {}
 
 export type { Account, Character, AuthToken, AuthenticationState };

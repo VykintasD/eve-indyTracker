@@ -1,41 +1,52 @@
 <script setup>
-  import { ref } from 'vue';
+  import Sidebar from './components/layout/sidebar.vue';
 
-  const data = ref(null);
-  const wallet = ref(null);
+  // import { ref } from 'vue';
 
-  function startAuth() {
-    window.location.href = 'https://localhost:5000/auth';
-  }
+  // const data = ref(null);
+  // const wallet = ref(null);
 
-  async function fetchCharacters() {
-    try {
-      const response = await fetch('https://localhost:5000/api/characters');
-      console.log(response);
-      data.value = await response.json();
-      console.log(data);
-    } catch (err) {
-      console.log(err);
-    }
-  }
+  // function startAuth() {
+  //   window.location.href = 'https://localhost:5000/auth';
+  // }
 
-  async function fetchWalletBalance() {
-    try {
-      const charId = data.value[0].id;
-      console.log(charId);
-      const response = await fetch(
-        `https://localhost:5000/esi/characters/${charId}/wallet`
-      );
-      console.log(response);
-      wallet.value = await response.json();
-      console.log(data);
-    } catch (err) {
-      console.log(err);
-    }
-  }
+  // async function fetchCharacters() {
+  //   try {
+  //     const response = await fetch('https://localhost:5000/api/characters');
+  //     console.log(response);
+  //     data.value = await response.json();
+  //     console.log(data);
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // }
+
+  // async function fetchWalletBalance() {
+  //   try {
+  //     const charId = data.value[0].id;
+  //     console.log(charId);
+  //     const response = await fetch(
+  //       `https://localhost:5000/esi/characters/${charId}/wallet`
+  //     );
+  //     console.log(response);
+  //     wallet.value = await response.json();
+  //     console.log(data);
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // }
 </script>
 <template>
-  <div>
+  <v-app>
+    <v-app-bar title="EVE Tracker"></v-app-bar>
+    <!-- <v-navigation-drawer> -->
+    <Sidebar />
+    <!-- </v-navigation-drawer> -->
+    <v-main>
+      <router-view></router-view>
+    </v-main>
+  </v-app>
+  <!-- <div>
     <h1>Welcome to the Vue App</h1>
     <v-btn variant="outlined"> Button </v-btn>
     <p>hello</p>
@@ -50,5 +61,5 @@
       <h2>Wallets:</h2>
       <pre>{{ wallet }}</pre>
     </div>
-  </div>
+  </div> -->
 </template>
