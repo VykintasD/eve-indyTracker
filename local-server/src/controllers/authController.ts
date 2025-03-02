@@ -21,8 +21,6 @@ export default class AuthController {
         `${endpoints.BASE}${endpoints.AUTH_CALLBACK}`
       );
 
-      console.log('initiating SSO');
-      console.log(authUrl);
       authService.registerOutboundState(state);
 
       // Redirect the user to the SSO provider
@@ -59,7 +57,7 @@ export default class AuthController {
       if (characterId) {
         const token = await this.getToken(characterId);
         // check if token valid for next 2min
-        if (await this.isTokenExpired(token)) {
+        if (this.isTokenExpired(token)) {
           const refreshedToken: AuthToken =
             await authService.requestTokenRefresh(token, characterId);
 
@@ -72,7 +70,7 @@ export default class AuthController {
     }
   }
 
-  private async isTokenExpired(token: AuthToken) {
+  private isTokenExpired(token: AuthToken) {
     let tokenExpiry;
 
     if (token.expires_at) {
@@ -80,8 +78,6 @@ export default class AuthController {
     } else {
       return true;
     }
-
-    console.log('token expires at ', tokenExpiry);
 
     const now = new Date();
     now.setMinutes(now.getMinutes() + 2);

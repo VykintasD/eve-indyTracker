@@ -63,18 +63,28 @@ I have used `mkcert` - https://github.com/FiloSottile/mkcert
 
 ### Example .env file using :5000 for server, :8080 for frontend and :5432 for DB
 
+To access env variables in Vue, expose them with `VITE_` prefix.
+
 ```
 HTTPS_CERT_FILENAME=yourAppName.com+5.pem
 HTTPS_KEY_FILENAME=yourAppName.com+5-key.pem
+
 CLIENT_ID={your cliend id from ESI}
 CLIENT_SECRET={your super secret client secret from ESI}
+
+BASE_URL=https://localhost:
 EXPRESS_PORT=5000
 VUE_PORT=8080
+
 PG_PASSWORD={your postgres password}
 PG_PORT=5432
 PG_DATABASE=postgres
 PG_HOST=localhost
 PG_USER=postgres
+
+VITE_BASE_URL=https://localhost:
+VITE_EXPRESS_PORT=5000
+VITE_VUE_PORT=8080
 ```
 
 # Starting the services
