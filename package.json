@@ -7,7 +7,7 @@
     "local-server"
   ],
   "scripts": {
-    "start": "concurrently --raw \"npm run dev --prefix local-server\" \"npm run serve --prefix indy-tracker\" -c \"blue,green\"",
+    "start": "concurrently --raw \"npm run dev --prefix local-server\" \"npm run serve --prefix client\" -c \"blue,green\"",
     "install:all": "npm install"
   },
   "keywords": [],
