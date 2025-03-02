@@ -2,32 +2,32 @@ import { AuthToken } from '../../src/types/types';
 import { TableError } from '../../src/types/errors';
 
 export default class Token implements AuthToken {
-  accessToken: string;
-  expiresAt: number;
-  tokenType: string;
-  refreshToken: string;
-  characterId: number;
+  accesstoken: string;
+  expiresat: number;
+  tokentype: string;
+  refreshtoken: string;
+  characterid: number;
 
   constructor(props: {
-    accessToken: string;
-    expiresAt: number;
-    tokenType: string;
-    refreshToken: string;
-    characterId: number;
+    accesstoken: string;
+    expiresat: number;
+    tokentype: string;
+    refreshtoken: string;
+    characterid: number;
   }) {
-    this.accessToken = props.accessToken;
-    this.expiresAt = props.expiresAt;
-    this.tokenType = props.tokenType;
-    this.refreshToken = props.refreshToken;
-    this.characterId = props.characterId;
+    this.accesstoken = props.accesstoken;
+    this.expiresat = props.expiresat;
+    this.tokentype = props.tokentype;
+    this.refreshtoken = props.refreshtoken;
+    this.characterid = props.characterid;
   }
 
   validate() {
     if (
-      !this.accessToken.length ||
-      !this.expiresAt ||
-      !this.refreshToken.length ||
-      !this.characterId
+      !this.accesstoken.length ||
+      !this.expiresat ||
+      !this.refreshtoken.length ||
+      !this.characterid
     ) {
       throw new TableError('Invalid auth token');
     }

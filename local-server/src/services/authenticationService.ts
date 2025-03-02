@@ -67,11 +67,11 @@ export default class AuthenticationService {
         const character: Character = await this.getCharacter(decodedToken.name);
 
         const authToken: AuthToken = {
-          accessToken: access_token,
-          refreshToken: refresh_token,
-          expiresAt: decodedToken.exp ?? 0,
-          tokenType: token_type,
-          characterId: character.id,
+          accesstoken: access_token,
+          refreshtoken: refresh_token,
+          expiresat: decodedToken.exp ?? 0,
+          tokentype: token_type,
+          characterid: character.id,
         };
 
         const authenticationState: AuthenticationState = {
@@ -158,6 +158,33 @@ export default class AuthenticationService {
     );
 
     return accessToken.data;
+  }
+
+  async requestTokenRefresh(
+    token: AuthToken,
+    characterId: string
+  ): Promise<AuthenticationRefreshState> {
+    console.log('refresh token: ', token.refreshtoken);
+    console.log('for character: ', characterId);
+
+    const result = await axios.post(
+      'https://login.eveonline.com/v2/oauth/token',
+      new URLSearchParams({
+        grant_type: 'refresh_token',
+        refresh_token: token.refreshtoken,
+        client_id: process.env.CLIENT_ID!,
+      }),
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Host: 'login.eveonline.com',
+        },
+      }
+    );
+
+    const { access_token, expires_in, token_type, refresh_token } = result.data;
+
+    console.log(result);
   }
 
   generateSSOurl(redirectUri: string) {

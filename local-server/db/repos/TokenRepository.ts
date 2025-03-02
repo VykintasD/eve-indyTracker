@@ -11,14 +11,14 @@ export default class TokenRepository {
 
   async save(token: AuthToken) {
     if (
-      !token.accessToken.length ||
-      !token.refreshToken ||
-      !token.characterId
+      !token.accesstoken.length ||
+      !token.refreshtoken ||
+      !token.characterid
     ) {
       throw new DatabaseError('Invalid token data');
     }
 
-    const result = await this.client.query(this.buildQuery(token));
+    const result = await this.client.query(this.buildInsertQuery(token));
 
     if (!result.rows.length) {
       console.error(`could not save token`);
@@ -27,7 +27,17 @@ export default class TokenRepository {
     return result;
   }
 
-  private buildQuery(token: AuthToken) {
+  async getAccessToken(characterId: number) {
+    const result = await this.client.query({
+      name: 'query-token',
+      text: `SELECT * FROM tokens WHERE characterId = $1`,
+      values: [characterId],
+    });
+
+    return result.rows;
+  }
+
+  private buildInsertQuery(token: AuthToken) {
     return {
       name: 'save-token',
       text: `
@@ -42,11 +52,11 @@ export default class TokenRepository {
                 tokenType = EXCLUDED.tokenType
             RETURNING *`,
       values: [
-        token.accessToken,
-        token.expiresAt,
-        token.tokenType,
-        token.refreshToken,
-        token.characterId,
+        token.accesstoken,
+        token.expiresat,
+        token.tokentype,
+        token.refreshtoken,
+        token.characterid,
       ],
       rowMode: 'array',
     };

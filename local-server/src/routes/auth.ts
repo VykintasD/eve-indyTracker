@@ -5,8 +5,6 @@ const router = express.Router();
 const authController = new AuthController();
 
 router.get('/', authController.initiateSSO);
-router.get('/callback', async (req, res) => {
-  await authController.handleEsiCallback(req, res);
-});
+router.get('/callback', authController.handleEsiCallback.bind(authController));
 
 export default router;

@@ -48,12 +48,18 @@ export default class Repository {
     await this.characterRepo.save(character);
 
     const token = new Token(authState.token).validate();
+    console.log('new token: ', token);
     await this.tokenrepo.save(token);
   }
 
-  async fetchAllCharacters() {
+  async getAllCharacters() {
     const result = await this.characterRepo.fetchAll();
-    console.log('repo: ', result);
-    return result;
+    return result.rows;
+  }
+
+  async getAccessToken(characterId: number): Promise<Token> {
+    const result = await this.tokenrepo.getAccessToken(characterId);
+    console.log('repo found token: ', result);
+    return result[0];
   }
 }

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import AuthenticationService from '../services/authenticationService';
 import { endpoints } from '../config/shared';
-import { AuthenticationState } from '../types/types';
+import { AuthenticationState, AuthToken } from '../types/types';
 import Repository from '../../db/repository';
 
 const authService = new AuthenticationService();
@@ -14,7 +14,7 @@ export default class AuthController {
     this.repo = repo;
   }
 
-  initiateSSO = (req: Request, res: Response): void => {
+  initiateSSO(req: Request, res: Response) {
     try {
       // Generate the SSO redirect URL and state challenge
       const { authUrl, state } = authService.generateSSOurl(
@@ -28,7 +28,7 @@ export default class AuthController {
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
-  };
+  }
 
   async handleEsiCallback(req: Request, res: Response): Promise<void> {
     try {
@@ -44,5 +44,37 @@ export default class AuthController {
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
+  }
+
+  async verifyAndRefreshToken(req: Request, res: Response): Promise<void> {
+    try {
+      const { characterId } = req.params;
+
+      if (characterId) {
+        const token = await this.getToken(characterId);
+        // check if token valid for next 2min
+        if (await this.isTokenExpired(token)) {
+          authService.requestTokenRefresh(token, characterId);
+        }
+      }
+    } catch (err: any) {
+      console.error(err);
+    }
+  }
+
+  private async refreshToken(characterId: number) {}
+
+  private async isTokenExpired(token: AuthToken) {
+    const tokenExpiry = new Date(token.expiresat * 1000);
+    console.log('token expires at ', tokenExpiry);
+
+    const now = new Date();
+    now.setMinutes(now.getMinutes() + 2);
+
+    return tokenExpiry < now;
+  }
+
+  private async getToken(characterId: string) {
+    return await repo.getAccessToken(Number(characterId));
   }
 }

@@ -9,11 +9,11 @@ interface Character {
 }
 
 interface AuthToken {
-  accessToken: string;
-  refreshToken: string;
-  expiresAt: number;
-  tokenType: string;
-  characterId: Character['id'];
+  accesstoken: string;
+  refreshtoken: string;
+  expiresat: number;
+  tokentype: string;
+  characterid: Character['id'];
 }
 
 interface AuthenticationState {
