@@ -56,27 +56,23 @@ export default class AuthenticationService {
     if (this.verifyIncomingState(state)) {
       try {
         // Exchange authorization code for access token
-        const { access_token, refresh_token, token_type } =
-          await this.requestAccessToken(code);
+        const token: AuthToken = await this.requestAccessToken(code);
+        console.log('received token: ', token);
 
         console.log('Verifying access token... 🔒');
-        const decodedToken = await this.verifyAccessToken(access_token);
+        const decodedToken = await this.verifyAccessToken(token.access_token);
 
         console.log('Token verified 😎');
 
         const character: Character = await this.getCharacter(decodedToken.name);
 
-        const authToken: AuthToken = {
-          accesstoken: access_token,
-          refreshtoken: refresh_token,
-          expiresat: decodedToken.exp ?? 0,
-          tokentype: token_type,
-          characterid: character.id,
-        };
-
         const authenticationState: AuthenticationState = {
           character: character,
-          token: authToken,
+          token: {
+            ...token,
+            expires_at: decodedToken.exp ?? 0,
+            character_id: character.id,
+          },
         };
 
         return authenticationState;
@@ -138,7 +134,7 @@ export default class AuthenticationService {
     }
   }
 
-  async requestAccessToken(authorizationCode: string) {
+  async requestAccessToken(authorizationCode: string): Promise<AuthToken> {
     const basicAuth = Buffer.from(
       `${process.env.CLIENT_ID}:${process.env.CLIENT_SECRET}`
     ).toString('base64');
@@ -163,15 +159,12 @@ export default class AuthenticationService {
   async requestTokenRefresh(
     token: AuthToken,
     characterId: string
-  ): Promise<AuthenticationRefreshState> {
-    console.log('refresh token: ', token.refreshtoken);
-    console.log('for character: ', characterId);
-
+  ): Promise<AuthToken> {
     const result = await axios.post(
       'https://login.eveonline.com/v2/oauth/token',
       new URLSearchParams({
         grant_type: 'refresh_token',
-        refresh_token: token.refreshtoken,
+        refresh_token: token.refresh_token,
         client_id: process.env.CLIENT_ID!,
       }),
       {
@@ -182,9 +175,19 @@ export default class AuthenticationService {
       }
     );
 
-    const { access_token, expires_in, token_type, refresh_token } = result.data;
+    const refreshedToken = result.data;
+    const decodedToken = await this.verifyAccessToken(
+      refreshedToken.access_token
+    );
 
-    console.log(result);
+    const newToken: AuthToken = {
+      ...refreshedToken,
+      expires_at: decodedToken.exp,
+      character_id: characterId,
+    };
+
+    console.log('Refreshed new token: ', newToken);
+    return newToken;
   }
 
   generateSSOurl(redirectUri: string) {

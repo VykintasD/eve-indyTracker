@@ -14,14 +14,12 @@ export default class EsiController {
     console.log('got charID ', characterId);
     console.log('getting wallet');
 
-    const chars = await repo.getAllCharacters();
-
     const charAccessToken = await repo.getAccessToken(Number(characterId));
-    console.log(charAccessToken.accesstoken);
 
-    if (Date.parse(charAccessToken.accesstoken))
+    if (charAccessToken.access_token)
       try {
-        await esi.fetchWalletBalance(chars[0].id, charAccessToken.accesstoken);
+        const resp = await esi.fetchWalletBalance(charAccessToken);
+        console.log(`Wallet balance for character ${characterId}:`, resp);
       } catch (err: any) {
         console.log(err);
       }

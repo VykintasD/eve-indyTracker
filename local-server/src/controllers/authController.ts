@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import AuthenticationService from '../services/authenticationService';
 import { endpoints } from '../config/shared';
 import { AuthenticationState, AuthToken } from '../types/types';
@@ -46,7 +46,11 @@ export default class AuthController {
     }
   }
 
-  async verifyAndRefreshToken(req: Request, res: Response): Promise<void> {
+  async verifyAndRefreshToken(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { characterId } = req.params;
 
@@ -54,18 +58,27 @@ export default class AuthController {
         const token = await this.getToken(characterId);
         // check if token valid for next 2min
         if (await this.isTokenExpired(token)) {
-          authService.requestTokenRefresh(token, characterId);
+          const refreshedToken: AuthToken =
+            await authService.requestTokenRefresh(token, characterId);
+
+          this.repo.storeToken(refreshedToken);
         }
       }
+      next();
     } catch (err: any) {
       console.error(err);
     }
   }
 
-  private async refreshToken(characterId: number) {}
-
   private async isTokenExpired(token: AuthToken) {
-    const tokenExpiry = new Date(token.expiresat * 1000);
+    let tokenExpiry;
+
+    if (token.expires_at) {
+      tokenExpiry = new Date(token.expires_at * 1000);
+    } else {
+      return true;
+    }
+
     console.log('token expires at ', tokenExpiry);
 
     const now = new Date();

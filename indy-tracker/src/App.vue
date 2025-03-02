@@ -20,7 +20,7 @@
 
   async function fetchWalletBalance() {
     try {
-      const charId = data.value[0].id;
+      const charId = data.value[2].id;
       console.log(charId);
       const response = await fetch(
         `https://localhost:5000/esi/characters/${charId}/wallet`

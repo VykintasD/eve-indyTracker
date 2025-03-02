@@ -1,7 +1,7 @@
 import { Client } from 'pg';
 import fs from 'fs';
 import path from 'path';
-import { AuthenticationState } from '../src/types/types.ts';
+import { AuthenticationState, AuthToken } from '../src/types/types.ts';
 import Character from './tables/Character.ts';
 import Token from './tables/Token.ts';
 import CharacterRepository from './repos/CharacterRepository.ts';
@@ -44,12 +44,21 @@ export default class Repository {
   }
 
   async storeAuth(authState: AuthenticationState) {
-    const character = new Character(authState.character).validate();
-    await this.characterRepo.save(character);
+    await this.storeCharacter(authState.character);
+    await this.storeToken(authState.token);
+  }
 
-    const token = new Token(authState.token).validate();
-    console.log('new token: ', token);
+  async storeCharacter(char: Character) {
+    const character = new Character(char).validate();
+    character.validate();
+    await this.characterRepo.save(character);
+  }
+
+  async storeToken(authToken: AuthToken) {
+    console.log('storing token: ', authToken);
+    const token = new Token(authToken).validate();
     await this.tokenrepo.save(token);
+    console.log('token stored');
   }
 
   async getAllCharacters() {
@@ -59,7 +68,7 @@ export default class Repository {
 
   async getAccessToken(characterId: number): Promise<Token> {
     const result = await this.tokenrepo.getAccessToken(characterId);
-    console.log('repo found token: ', result);
+    console.log('repo found token: ', result[0]);
     return result[0];
   }
 }

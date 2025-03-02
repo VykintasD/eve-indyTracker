@@ -11,9 +11,9 @@ export default class TokenRepository {
 
   async save(token: AuthToken) {
     if (
-      !token.accesstoken.length ||
-      !token.refreshtoken ||
-      !token.characterid
+      !token.access_token.length ||
+      !token.refresh_token ||
+      !token.character_id
     ) {
       throw new DatabaseError('Invalid token data');
     }
@@ -30,7 +30,7 @@ export default class TokenRepository {
   async getAccessToken(characterId: number) {
     const result = await this.client.query({
       name: 'query-token',
-      text: `SELECT * FROM tokens WHERE characterId = $1`,
+      text: `SELECT * FROM tokens WHERE character_id = $1`,
       values: [characterId],
     });
 
@@ -42,21 +42,21 @@ export default class TokenRepository {
       name: 'save-token',
       text: `
       INSERT INTO
-        tokens(accessToken, expiresAt, tokenType, refreshToken, characterId)
+        tokens(access_token, expires_at, token_type, refresh_token, character_id)
         VALUES($1, $2, $3, $4, $5)
-        ON CONFLICT (characterId)
+        ON CONFLICT (character_id)
             DO UPDATE SET
-                accessToken = EXCLUDED.accessToken,
-                refreshToken = EXCLUDED.refreshToken,
-                expiresAt = EXCLUDED.expiresAt,
-                tokenType = EXCLUDED.tokenType
+                access_token = EXCLUDED.access_token,
+                refresh_token = EXCLUDED.refresh_token,
+                expires_at = EXCLUDED.expires_at,
+                token_type = EXCLUDED.token_type
             RETURNING *`,
       values: [
-        token.accesstoken,
-        token.expiresat,
-        token.tokentype,
-        token.refreshtoken,
-        token.characterid,
+        token.access_token,
+        token.expires_at,
+        token.token_type,
+        token.refresh_token,
+        token.character_id,
       ],
       rowMode: 'array',
     };
