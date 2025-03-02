@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../views/Home.vue'
-import Characters from '../views/Characters.vue'
+import Characters from '../views/CharactersView.vue'
 
 const routes = [
   { path: '/', component: Home },

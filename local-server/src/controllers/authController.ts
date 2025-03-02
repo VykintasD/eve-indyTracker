@@ -21,6 +21,8 @@ export default class AuthController {
         `${endpoints.BASE}${endpoints.AUTH_CALLBACK}`
       );
 
+      console.log('initiating SSO');
+      console.log(authUrl);
       authService.registerOutboundState(state);
 
       // Redirect the user to the SSO provider
