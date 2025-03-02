@@ -1,5 +1,6 @@
 <script setup>
   import { ref } from 'vue';
+
   const data = ref(null);
   const wallet = ref(null);
 
@@ -20,7 +21,7 @@
 
   async function fetchWalletBalance() {
     try {
-      const charId = data.value[2].id;
+      const charId = data.value[0].id;
       console.log(charId);
       const response = await fetch(
         `https://localhost:5000/esi/characters/${charId}/wallet`
@@ -36,6 +37,8 @@
 <template>
   <div>
     <h1>Welcome to the Vue App</h1>
+    <v-btn variant="outlined"> Button </v-btn>
+    <p>hello</p>
     <button @click="startAuth">Start OAuth Flow</button>
     <button @click="fetchCharacters">Get Characters</button>
     <button @click="fetchWalletBalance">Get Wallet Balance</button>

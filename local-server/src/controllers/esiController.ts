@@ -20,6 +20,7 @@ export default class EsiController {
       try {
         const resp = await esi.fetchWalletBalance(charAccessToken);
         console.log(`Wallet balance for character ${characterId}:`, resp);
+        res.status(200).json(resp);
       } catch (err: any) {
         console.log(err);
       }
