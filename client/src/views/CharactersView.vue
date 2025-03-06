@@ -1,34 +1,25 @@
-<script>
-import { apiService } from '@/services/apiController.ts'
-export default {
-  name: 'Characters',
-  data() {
-    return {
-      characters: [],
-    }
-  },
-  created() {
-    this.$watch(() => {}, this.fetchCharacters, { immediate: true })
-  },
-  methods: {
-    async fetchCharacters() {
-      try {
-        this.characters = await apiService.fetchCharacters()
-      } catch (error) {
-        this.error = error.message
-      } finally {
-        this.loading = false
-      }
-    },
-    async addCharacter() {
-      await apiService.addCharacter()
-    },
-  },
-}
+<script setup>
+import characterCard from '@/components/cards/characterCard.vue';
+import { apiService } from '@/services/apiController.ts';
+import { ref, reactive } from 'vue';
+
+const characters = ref(null);
+
+const fetchCharacters = async () => {
+  try {
+    characters.value = await apiService.fetchCharacters();
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const addCharacter = async () => {
+  await apiService.addCharacter();
+};
+
+fetchCharacters();
 </script>
 <template>
-  <li v-for="char in characters">
-    {{ char.name }}
-  </li>
+  <characterCard v-for="char in characters" :character="char" />
   <v-Btn @click="addCharacter">Add Character</v-Btn>
 </template>

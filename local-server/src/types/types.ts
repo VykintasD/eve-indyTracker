@@ -6,6 +6,7 @@ interface Account {
 interface Character {
   id: number;
   name: string;
+  portrait_url?: string;
   validate(): Character;
 }
 

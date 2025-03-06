@@ -23,6 +23,16 @@ class ApiService {
       throw new Error(`Failed to fetch user: ${error.message}`);
     }
   }
+
+  async fetchPortrait(characterId: string): Promise<any> {
+    try {
+      const response = await fetch(`${SERVER_BASE_URL}/esi/characters/${characterId}/portrait/`);
+
+      return await response.json();
+    } catch (error: any) {
+      throw new Error(`Failed to fetch user: ${error.message}`);
+    }
+  }
 }
 
 export const apiService = new ApiService();

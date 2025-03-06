@@ -34,8 +34,8 @@ export default class CharacterRepository {
   private buildInsertQuery(character: Character) {
     return {
       name: 'save-character',
-      text: 'INSERT INTO characters(id, name) VALUES($1, $2)  ON CONFLICT DO NOTHING RETURNING *',
-      values: [character.id, character.name],
+      text: 'INSERT INTO characters(id, name, portrait_url) VALUES($1, $2, $3)  ON CONFLICT DO NOTHING RETURNING *',
+      values: [character.id, character.name, character.portrait_url],
       rowMode: 'array',
     };
   }

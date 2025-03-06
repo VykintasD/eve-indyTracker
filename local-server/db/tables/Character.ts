@@ -3,10 +3,12 @@ import { TableError } from '../../src/types/errors';
 export default class Character {
   name: string;
   id: number;
+  portrait_url?: string;
 
-  constructor(props: { id: number; name: string }) {
+  constructor(props: { id: number; name: string; portrait_url?: string }) {
     this.name = props.name;
     this.id = props.id;
+    this.portrait_url = props.portrait_url;
   }
 
   validate() {

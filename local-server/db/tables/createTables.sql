@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS characters (
     id INTEGER PRIMARY KEY,
+    portrait_url VARCHAR,
     name VARCHAR(100) UNIQUE NOT NULL
 );
 CREATE TABLE IF NOT EXISTS tokens (

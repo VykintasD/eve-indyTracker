@@ -65,9 +65,14 @@ export default class AuthenticationService {
         console.log('Token verified 😎');
 
         const character: Character = await this.getCharacter(decodedToken.name);
+        const portrait_url = await this.fetchPortrait(
+          character.id,
+          token,
+          'px64x64'
+        );
 
         const authenticationState: AuthenticationState = {
-          character: character,
+          character: { ...character, portrait_url: portrait_url },
           token: {
             ...token,
             expires_at: decodedToken.exp ?? 0,
@@ -95,6 +100,21 @@ export default class AuthenticationService {
     );
 
     return character?.data?.characters[0];
+  }
+
+  async fetchPortrait(characterId: number, authToken: AuthToken, size: string) {
+    const { token_type, access_token } = authToken;
+
+    const result = await axios.get(
+      `https://esi.evetech.net/latest/characters/${characterId}/portrait/`,
+      {
+        headers: {
+          Authorization: `${token_type} ${access_token}`,
+        },
+      }
+    );
+
+    return result.data[size];
   }
 
   // TODO: error handling
